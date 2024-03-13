@@ -1,4 +1,4 @@
 baseURL = 'https://sebastianrapp.github.io/'
 languageCode = 'de-de'
 title = 'Sebastians KI Blog'
-theme = 'papermod'
+theme = 'PaperMod'
