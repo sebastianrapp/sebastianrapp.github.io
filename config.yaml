@@ -23,12 +23,12 @@ languages:
   de:
     languageName: German
     weight: 1
-  en:
-    languageName: English
-    weight: 2
+  # en:
+  #   languageName: English
+  #   weight: 2
 
 # Force a locale to be use, really useful to develop the application ! Should be commented in production, the "weight" should rocks.
-# DefaultContentLanguage: bn
+DefaultContentLanguage: de
 
 # Allow raw html in markdown file
 markup:
@@ -81,7 +81,7 @@ params:
 
     # Enable and configure portfolio
     portfolio:
-      enable: true
+      enable: false
 
     # Enable and configure blog posts
     blog:
@@ -102,7 +102,7 @@ params:
 
     # Enable & configure "Notes" features
     notes:
-      enable: true
+      enable: false
 
     # Enable comment feature. There, should be only one of them.
     comment:
@@ -287,4 +287,4 @@ params:
 
     # Show/hide disclaimer notice in the footer. Default is "false".
     disclaimer:
-      enable: true
+      enable: false

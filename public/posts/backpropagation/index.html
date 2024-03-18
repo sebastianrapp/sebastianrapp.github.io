@@ -1,205 +1,638 @@
 <!DOCTYPE html>
-<html lang="en" dir="auto">
+<html lang="de">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <title>Backpropagation</title>
+    <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="X-UA-Compatible" content="ie=edge" />
 
-<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="robots" content="noindex, nofollow">
-<title>Backpropagation | Sebastians KI Blog</title>
-<meta name="keywords" content="">
-<meta name="description" content="Backpropagation Ableitung ">
-<meta name="author" content="">
-<link rel="canonical" href="http://localhost:1313/posts/backpropagation/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.b609c58d5c11bb90b1a54e04005d74ad1ddf22165eb79f5533967e57df9c3b50.css" integrity="sha256-tgnFjVwRu5CxpU4EAF10rR3fIhZet59VM5Z&#43;V9&#43;cO1A=" rel="preload stylesheet" as="style">
-<link rel="icon" href="http://localhost:1313/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
-<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
-<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
-<meta name="theme-color" content="#2e2e33">
-<meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/backpropagation/">
-<noscript>
-    <style>
-        #theme-toggle,
-        .top-link {
-            display: none;
-        }
+<link rel="stylesheet" href="/application.33b6f2765cc4d590a8ef3718b678c20645d7d52af0cc9c6cd00382c63bba13c4.css" integrity="sha256-M7bydlzE1ZCo7zcYtnjCBkXX1SrwzJxs0AOCxju6E8Q=" />
 
-    </style>
-    <style>
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --theme: rgb(29, 30, 32);
-                --entry: rgb(46, 46, 51);
-                --primary: rgb(218, 218, 219);
-                --secondary: rgb(155, 156, 157);
-                --tertiary: rgb(65, 66, 68);
-                --content: rgb(196, 196, 197);
-                --code-block-bg: rgb(46, 46, 51);
-                --code-bg: rgb(55, 56, 62);
-                --border: rgb(51, 51, 51);
-            }
 
-            .list {
-                background: var(--theme);
-            }
 
-            .list:not(.dark)::-webkit-scrollbar-track {
-                background: 0 0;
-            }
 
-            .list:not(.dark)::-webkit-scrollbar-thumb {
-                border-color: var(--theme);
-            }
-        }
 
-    </style>
-</noscript>
-</head>
+  
 
-<body class="" id="top">
+  
+  
+  
+    
+  
+  
+
+  <link rel="icon" type="image/png" href="/images/site/favicon_hub02d7508a1c89b2b7812eab204efeb9a_4223_42x0_resize_box_3.png" />
+
+<meta property="og:title" content="Backpropagation" />
+<meta property="og:description" content="Introduction to Backpropagation" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://localhost:1313/posts/backpropagation/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2024-03-18T08:06:25+01:00" />
+<meta property="article:modified_time" content="2024-03-18T08:06:25+01:00" />
+
+
+    <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Backpropagation"/>
+<meta name="twitter:description" content="Introduction to Backpropagation"/>
+
+    
+    
+<meta name="description" content="Introduction to Backpropagation" />
+
+
+    
+
+    
+
+
+
+
 <script>
-    if (localStorage.getItem("pref-theme") === "dark") {
-        document.body.classList.add('dark');
-    } else if (localStorage.getItem("pref-theme") === "light") {
-        document.body.classList.remove('dark')
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.body.classList.add('dark');
-    }
+      theme = localStorage.getItem('darkmode:color-scheme') || 'system';
+      if (theme == 'system') {
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          theme = 'dark';
+        } else {
+          theme = 'light';
+        }
+      }
+      document.documentElement.setAttribute('data-theme', theme);
+    </script>
+  </head>
 
-</script>
-
-<header class="header">
-    <nav class="nav">
-        <div class="logo">
-            <a href="http://localhost:1313/" accesskey="h" title="Sebastians KI Blog (Alt + H)">Sebastians KI Blog</a>
-            <div class="logo-switches">
-                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
-                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                    </svg>
-                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="5"></circle>
-                        <line x1="12" y1="1" x2="12" y2="3"></line>
-                        <line x1="12" y1="21" x2="12" y2="23"></line>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                        <line x1="1" y1="12" x2="3" y2="12"></line>
-                        <line x1="21" y1="12" x2="23" y2="12"></line>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                    </svg>
-                </button>
-            </div>
-        </div>
-        <ul id="menu">
-        </ul>
-    </nav>
-</header>
-<main class="main">
-
-<article class="post-single">
-  <header class="post-header">
+  <body class="type-posts kind-page" data-spy="scroll" data-target="#TableOfContents" data-offset="80">
+    <div class="container-fluid bg-secondary wrapper">
+      
+      
     
-    <h1 class="post-title entry-hint-parent">
-      Backpropagation
-      <span class="entry-hint" title="Draft">
-        <svg xmlns="http://www.w3.org/2000/svg" height="35" viewBox="0 -960 960 960" fill="currentColor">
-          <path
-            d="M160-410v-60h300v60H160Zm0-165v-60h470v60H160Zm0-165v-60h470v60H160Zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22q0 11-4.5 22.5T862.09-380L643-160H520Zm300-263-37-37 37 37ZM580-220h38l121-122-18-19-19-18-122 121v38Zm141-141-19-18 37 37-18-19Z" />
-        </svg>
-      </span>
-    </h1>
-    <div class="post-meta"><span title='2024-03-13 20:14:14 +0100 CET'>March 13, 2024</span>
-
-</div>
-  </header> 
-  <div class="post-content"><h1 id="backpropagation">Backpropagation<a hidden class="anchor" aria-hidden="true" href="#backpropagation">#</a></h1>
-<h2 id="ableitung">Ableitung<a hidden class="anchor" aria-hidden="true" href="#ableitung">#</a></h2>
 
 
-  </div>
 
-  <footer class="post-footer">
-    <ul class="post-tags">
-    </ul>
-  </footer>
-</article>
-    </main>
+
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+  
+  
     
-<footer class="footer">
-    <span>&copy; 2024 <a href="http://localhost:1313/">Sebastians KI Blog</a></span>
-    <span>
-        Powered by
-        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
-        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
-    </span>
-</footer>
-<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
-        <path d="M12 6H0l6-6z" />
-    </svg>
+  
+  
+
+
+
+  
+  
+    
+  
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+
+<nav class="navbar navbar-expand-xl top-navbar shadow " id="top-navbar">
+  <div class="container">
+    
+    <button class="navbar-toggler navbar-light" id="sidebar-toggler" type="button">
+      <i data-feather="sidebar"></i>
+    </button>
+    
+    <a class="navbar-brand" href="/">
+      
+        <img src="/images/site/main-logo_hu9ad2f25a877e6fef77c7a3dbef5094ad_6881_42x0_resize_box_3.png" id="logo" alt="Logo">
+      Sebastian&#39;s Blog</a>
+    <button
+      class="navbar-toggler navbar-light"
+      id="navbar-toggler"
+      type="button"
+      data-toggle="collapse"
+      data-target="#top-nav-items"
+      aria-label="menu"
+    >
+      <i data-feather="menu"></i>
+    </button>
+
+    <div class="collapse navbar-collapse dynamic-navbar" id="top-nav-items">
+      <ul class="nav navbar-nav ml-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="/#home">Home</a>
+        </li>
+        
+          
+          
+            
+            
+            
+            
+            
+            
+            
+            
+              
+              
+                <li class="nav-item">
+                  <a class="nav-link" href="/#recent-posts">Aktuelle Posts</a>
+                </li>
+              
+            
+            
+            
+          
+        
+        
+          <div id="top-navbar-divider"></div>
+        
+        
+          <li class="nav-item">
+            <a class="nav-link" id="blog-link" href="/posts">Alle Posts</a>
+          </li>
+        
+        
+        
+            
+        
+        
+        
+          <li class="nav-item dropdown">
+<a class="nav-link dropdown-toggle"  href="#" id="themeSelector" role="button"
+  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+  <img id="navbar-theme-icon-svg" class="theme-icon" src="/icons/moon-svgrepo-com.svg" width=20 alt="Dark Theme">
 </a>
+<div id="themeMenu" class="dropdown-menu dropdown-menu-icons-only" aria-labelledby="themeSelector">
+  <a class="dropdown-item nav-link" href="#" data-scheme="light">
+    <img class="theme-icon" src="/icons/sun-svgrepo-com.svg" width=20 alt="Light Theme">
+  </a>
+  <a class="dropdown-item nav-link" href="#" data-scheme="dark">
+    <img class="theme-icon" src="/icons/moon-svgrepo-com.svg" width=20 alt="Dark Theme">
+  </a>
+  <a class="dropdown-item nav-link" href="#" data-scheme="system">
+    <img class="theme-icon" src="/icons/computer-svgrepo-com.svg" width=20 alt="System Theme">
+  </a>
+</div>
+</li>
 
-<script>
-    let menu = document.getElementById('menu')
-    if (menu) {
-        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
-        menu.onscroll = function () {
-            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
-        }
-    }
+        
+      </ul>
+    </div>
+  </div>
+  
+  
+    <img src="/images/site/main-logo_hu9ad2f25a877e6fef77c7a3dbef5094ad_6881_42x0_resize_box_3.png" class="d-none" id="main-logo" alt="Logo">
+  
+  
+    <img src="/images/site/inverted-logo_hub02d7508a1c89b2b7812eab204efeb9a_4223_42x0_resize_box_3.png" class="d-none" id="inverted-logo" alt="Inverted Logo">
+  
+</nav>
 
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener("click", function (e) {
-            e.preventDefault();
-            var id = this.getAttribute("href").substr(1);
-            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
-                    behavior: "smooth"
-                });
-            } else {
-                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
-            }
-            if (id === "top") {
-                history.replaceState(null, null, " ");
-            } else {
-                history.pushState(null, null, `#${id}`);
-            }
-        });
-    });
 
-</script>
-<script>
-    var mybutton = document.getElementById("top-link");
-    window.onscroll = function () {
-        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
-            mybutton.style.visibility = "visible";
-            mybutton.style.opacity = "1";
-        } else {
-            mybutton.style.visibility = "hidden";
-            mybutton.style.opacity = "0";
-        }
-    };
 
-</script>
-<script>
-    document.getElementById("theme-toggle").addEventListener("click", () => {
-        if (document.body.className.includes("dark")) {
-            document.body.classList.remove('dark');
-            localStorage.setItem("pref-theme", 'light');
-        } else {
-            document.body.classList.add('dark');
-            localStorage.setItem("pref-theme", 'dark');
-        }
-    })
+      
+      
+  <section class="sidebar-section" id="sidebar-section">
+    <div class="sidebar-holder">
+      <div class="sidebar" id="sidebar">
+        <form class="mx-auto" method="get" action="/search">
+          <input type="text" name="keyword" value="" placeholder="Suche" data-search="" id="search-box" />
+        </form>
+        <div class="sidebar-tree">
+          <ul class="tree" id="tree">
+            <li id="list-heading"><a href="/posts/" data-filter="all">Alle Posts</a></li>
+            <div class="subtree">
+                
+  
+  
+  
+  
+    
+    
+  
+  
+    
+    <li><a class="active list-link" href="/posts/backpropagation/" title="Backpropagation">Backpropagation</a></li>
+  
 
-</script>
+  
+  
+  
+  
+  
+    
+    <li>
+      <i data-feather="plus-circle"></i><a class=" list-link" href="/posts/category/"> Category</a>
+      
+      <ul class="">
+        
+  
+  
+  
+  
+  
+    
+    <li>
+      <i data-feather="plus-circle"></i><a class=" list-link" href="/posts/category/sub-category/"> Sub-Category</a>
+      
+      <ul class="">
+        
+  
+  
+  
+  
+  
+    
+    <li><a class=" list-link" href="/posts/category/sub-category/rich-content/" title="Rich Content">Rich Content</a></li>
+  
+
+
+      </ul>
+    </li>
+  
+
+
+      </ul>
+    </li>
+  
+
+
+            </div>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+      
+      
+<section class="content-section" id="content-section">
+  <div class="content">
+    <div class="container p-0 read-area">
+      
+      <div class="hero-area col-sm-12" id="hero-area" style='background-image: url(/images/default-hero.jpg);'>
+      </div>
+
+      
+      <div class="page-content">
+        
+        <div class="author-profile ml-auto align-self-lg-center">
+          <img class="rounded-circle" src='/images/author/john_hu7f9991f5b5d471ecdfc6cff3db1a9fe6_6397_120x120_fit_box_3.png' alt="Author Image">
+          <h5 class="author-name">Sebastian Rapp</h5>
+          <p class="text-muted">Montag, 18. März 2024 | 1 </p>
+        </div>
+        
+        
+        <div class="title">
+          <h1>Backpropagation</h1>
+        </div>
+
+        
+
+        
+          <div class="tags">
+  <ul style="padding-left: 0;">
+    
+    
+    <li class="rounded"><a href="/tags/basic/" class="btn btn-sm btn-info">Basic</a></li>
+    
+    
+    <li class="rounded"><a href="/tags/multi-lingual/" class="btn btn-sm btn-info">Multi-lingual</a></li>
+    
+  </ul>
+</div>
+
+        
+        <div class="post-content" id="post-content">
+          <p>Greeting! This is an introduction post. This post tests the followings:</p>
+<ul>
+<li>Hero image is in the same directory as the post.</li>
+<li>This post should be at top of the sidebar.</li>
+<li>Post author should be the same as specified in <code>author.yaml</code> file.</li>
+</ul>
+
+        </div>
+
+        
+        <div class="row pl-3 pr-3">
+        
+          <div class="col-md-6 share-buttons">
+          
+            <strong>:</strong>
+            
+            <a class="btn icon-button bg-facebook" href="https://www.facebook.com/sharer.php?u=http%3a%2f%2flocalhost%3a1313%2fposts%2fbackpropagation%2f" target="_blank">
+              <i class="fab fa-facebook"></i>
+            </a>
+            
+            
+                <a class="btn icon-button bg-twitter" href="https://twitter.com/share?url=http%3a%2f%2flocalhost%3a1313%2fposts%2fbackpropagation%2f&text=Backpropagation&via=Sebastian%27s%20Blog" target="_blank">
+                  <i class="fab fa-twitter"></i>
+                </a>
+            
+            
+                <a  class="btn icon-button bg-reddit" href="https://reddit.com/submit?url=http%3a%2f%2flocalhost%3a1313%2fposts%2fbackpropagation%2f&title=Backpropagation" target="_blank">
+                  <i class="fab fa-reddit"></i>
+                </a>
+            
+            
+            
+            
+                <a class="btn icon-button bg-linkedin" href="https://www.linkedin.com/shareArticle?url=http%3a%2f%2flocalhost%3a1313%2fposts%2fbackpropagation%2f&title=Backpropagation" target="_blank">
+                  <i class="fab fa-linkedin"></i>
+                </a>
+            
+            
+             
+            
+                 <a class="btn icon-button bg-whatsapp" href="https://api.whatsapp.com/send?text=Backpropagation http%3a%2f%2flocalhost%3a1313%2fposts%2fbackpropagation%2f" target="_blank">
+                  <i class="fab fa-whatsapp"></i>
+                </a>
+            
+            
+                <a class="btn icon-button" href="mailto:?subject=Backpropagation&body=http%3a%2f%2flocalhost%3a1313%2fposts%2fbackpropagation%2f" target="_blank">
+                  <i class="fas fa-envelope-open-text"></i>
+                </a>
+            
+          
+          </div>
+
+        
+        
+          
+            
+          
+          <div class="col-md-6 btn-improve-page">
+             
+               <a href="https://github.com/sebastianrapp/sebastianrapp.github.io/edit/main/content/posts/Backpropagation/index.md" title="Diese Seite verbessern" target="_blank" rel="noopener">
+            
+                <i class="fas fa-code-branch"></i>
+                Diese Seite verbessern
+              </a>
+          </div>
+        
+        </div>
+
+
+
+      
+      <hr />
+        
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+    
+    
+  
+  
+
+  
+  
+
+
+<div class="row next-prev-navigator">
+  
+  
+      
+      
+      <div class="col-md-12 next-article">
+        <a href="/posts/category/sub-category/rich-content/" title="Rich Content" class="btn filled-button">
+          <div>Nächste <i class="fas fa-chevron-circle-right"></i></div>
+          <div class="next-prev-text">Rich Content</div>
+        </a>
+      </div>
+    
+</div>
+
+      <hr />
+
+      
+      
+
+      
+      
+
+      </div>
+    </div>
+  </div>
+  
+  <a id="scroll-to-top" class="btn"  data-toggle="tooltip" data-placement="left" title="Scroll to top">
+    <i class="fas fa-chevron-circle-up"></i>
+  </a>
+</section>
+
+
+      
+      
+  <section class="toc-section" id="toc-section">
+    
+    <div class="toc-holder">
+      <h5 class="text-center pl-3">Inhaltsverzeichnis</h5>
+      <hr>
+      <div class="toc">
+        <nav id="TableOfContents"></nav>
+      </div>
+    </div>
+    
+  </section>
+
+    </div>
+
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  
+  
+    
+  
+
+  
+  
+    
+  
+
+  
+  
+    
+    
+      
+    
+  
+
+
+  
+  
+  
+    
+  
+
+  
+  
+  
+
+  
+  
+  
+    
+  
+  
+
+  
+  
+  
+
+  <footer id="footer" class="container-fluid text-center align-content-center footer pb-2">
+    <div class="container pt-5">
+      <div class="row text-left">
+        
+        <div class="col-md-4 col-sm-12">
+          <h5>Navigation</h5>
+          
+          <ul>
+              
+              
+              
+              
+              
+              
+              
+              
+                
+                
+                  
+                
+                <li class="nav-item">
+                  <a class="smooth-scroll" href="http://localhost:1313/#recent-posts">Aktuelle Posts</a>
+                </li>
+              
+              
+              
+            
+              
+                
+              
+            
+          </ul>
+          
+        </div>
+        
+        
+        <div class="col-md-4 col-sm-12">
+          <h5>Kontaktiere mich:</h5>
+          <ul>
+            
+              
+                <li><a href=mailto:info@srapp.eu target="_blank" rel="noopener">
+                  <span><i class="fas fa-envelope"></i></span> <span>info@srapp.eu</span>
+                </a></li>
+              
+            
+              
+                <li><a href=https://github.com/sebastianrapp target="_blank" rel="noopener">
+                  <span><i class="fab fa-github"></i></span> <span>sebastianrapp</span>
+                </a></li>
+              
+            
+              
+                <li><a href=https://www.linkedin.com/in/Sebastian%20Rapp target="_blank" rel="noopener">
+                  <span><i class="fab fa-linkedin"></i></span> <span>Sebastian Rapp</span>
+                </a></li>
+              
+            
+              
+                <li><a href=https://www.researchgate.net/profile/%25!s%28%3cnil%3e%29 target="_blank" rel="noopener">
+                  <span><i class="fab fa-researchgate"></i></span> <span>Sebastian Rapp</span>
+                </a></li>            
+              
+            
+          </ul>
+        </div>
+        
+        
+        
+      </div>
+    </div>
+    
+    
+    <hr />
+    <div class="container">
+      <div class="row text-left">
+        <div class="col-md-4">
+          <a id="theme" href="https://github.com/hugo-toha/toha" target="_blank" rel="noopener">
+            <img src="/images/theme-logo_hu8376fd15465fef26ffe66b6bcf0ca686_13669_32x0_resize_box_3.png" alt="Toha Theme Logo">
+            Toha
+          </a>
+        </div>
+        <div class="col-md-4 text-center">© 2024 Copyright.</div>
+        <div class="col-md-4 text-right">
+          <a id="hugo" href="https://gohugo.io/" target="_blank" rel="noopener">Unterstützt von
+          <img
+            src="/images/hugo-logo.svg"
+            alt="Hugo Logo"
+            height="18"
+          />
+          </a>
+        </div>
+      </div>
+    </div>
+    
+  </footer>
+
+
+    <script src="/application.f88d25ef8ca18059130e0b50813c50c6afdbab535333f72a3c93d06c4d1f0e40.js" integrity="sha256-&#43;I0l74yhgFkTDgtQgTxQxq/bq1NTM/cqPJPQbE0fDkA=" defer></script>
+
+
+    
+     
+
+    
+    
+
 </body>
-
 </html>
